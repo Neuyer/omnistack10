@@ -1,43 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import api from './services/api';
 
-import './global.css'
-import './Sidebar.css'
-import './App.css'
+import './global.css';
+import './Sidebar.css';
+import './App.css';
+import './Main.css';
+import DevItem from './components/DevItem/index';
+import DevForm from './components/DevForm/index'
 
 //Componente
 //Estado
 //Propriedade
 function App() {
+  const [devs, setDevs] = useState([]);
+
  
+
+  useEffect(() => {
+    async function loadDevs() {
+      const response = await api.get('devs');
+
+      setDevs(response.data);
+    }
+
+    loadDevs()
+  }, []);
+
+  async function handleAddDev(data) {
+
+    const response = await api.post('/devs', data)
+    setDevs([...devs, response.data])
+  }
+
   return (
     <div id="app">
       <aside>
         <strong >Cadastrar</strong>
-        <form>
-          <div class="input-block">
-          <label htmlFor="username_github"> Usuário do Github</label>
-          <input name="github_username" id="username_github" required/>
-          </div>
-
-          <div className= "input-group">
-            <div class="input-block">
-            <label htmlFor="latitude">Tecnologias</label>
-            <input name="latitude" id="latitude" required/>
-            </div>
-
-            <div class="input-block">
-            <label htmlFor="latitude">Latitude</label>
-            <input name="latitude" id="latitude" required/>
-            </div>
-            <div class="input-block">
-            <label htmlFor="longitude">Longitude</label>
-            <input name="longitude" id="longitude" required/>
-            </div>
-          </div>
-          <button type= "submit">Salvar</button>
-        </form>
+        <DevForm onSubmit={handleAddDev} />
       </aside>
       <main>
+        <ul>
+          {devs.map(dev => (
+           <DevItem key= {dev.id} dev={dev} />
+          ))}
+        </ul>
 
       </main>
     </div>
